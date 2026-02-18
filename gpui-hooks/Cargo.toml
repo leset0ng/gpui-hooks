@@ -11,4 +11,4 @@ readme = "../README.md"
 
 [dependencies]
 gpui = "0.2.2"
-gpui-hooks-macros = { path = "../gpui-hooks-macros", version = "0.1.1" }
+gpui-hooks-macros = "0.1.1"
