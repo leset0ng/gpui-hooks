@@ -2132,12 +2132,23 @@ name = "gpui-hooks"
 version = "0.1.0"
 dependencies = [
  "gpui",
- "gpui-hooks-macros",
+ "gpui-hooks-macros 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
 name = "gpui-hooks-macros"
 version = "0.1.0"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.116",
+]
+
+[[package]]
+name = "gpui-hooks-macros"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "31be2dd4a7766e30616cc9a3e32b572a2c1191328746ab6226016390a26213a8"
 dependencies = [
  "proc-macro2",
  "quote",

@@ -44,13 +44,13 @@ impl HookedRender for CounterApp {
 
         // useMemo - 计算双倍值
         let count_val = count();
-        let doubled = self.use_memo([count_val], || count_val * 2);
+        let doubled = self.use_memo(|| count_val * 2, [count_val]);
 
         // useEffect - 副作用，当count变化时执行
-        self.use_effect([count_val], || {
+        self.use_effect(|| {
             println!("Effect: count changed to {}", count_val);
             Some(|| println!("Effect cleanup"))
-        });
+        }, [count_val]);
 
         div()
             .child(format!("Count: {}", count()))
@@ -111,12 +111,12 @@ let (value, set_value) = self.use_state(|| initial_value);
 执行副作用。
 
 ```rust
-self.use_effect(deps, || {
+self.use_effect(|| {
     // 副作用逻辑
     Some(|| {
         // 清理函数（可选）
     })
-});
+}, deps);
 ```
 
 - **参数**：
@@ -129,7 +129,7 @@ self.use_effect(deps, || {
 记忆化计算值。
 
 ```rust
-let memoized = self.use_memo(deps, || compute_expensive_value());
+let memoized = self.use_memo(|| compute_expensive_value(), deps);
 ```
 
 - **参数**：
@@ -236,10 +236,10 @@ impl HookedRender for MyComponent {
         let (count, set_count) = self.use_state(|| 0);
         let (name, set_name) = self.use_state(|| String::from("World"));
 
-        self.use_effect([count()], || {
+        self.use_effect(|| {
             println!("Count is now: {}", count());
             None
-        });
+        }, [count()]);
 
         // ... 渲染逻辑
     }

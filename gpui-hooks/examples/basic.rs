@@ -1,8 +1,8 @@
 use gpui::{
-    div, prelude::*, px, rgb, size, App, Application, Bounds, Context, Window, WindowBounds,
-    WindowOptions,
+    App, Application, Bounds, Context, Window, WindowBounds, WindowOptions, div, prelude::*, px,
+    rgb, size,
 };
-use gpui_hooks::{hook_element, HookedRender};
+use gpui_hooks::{HookedRender, hook_element};
 // 按需导入需要的 hook traits
 use gpui_hooks::hooks::{UseEffectHook, UseMemoHook, UseStateHook};
 
@@ -16,16 +16,19 @@ impl HookedRender for CounterApp {
 
         // useMemo - 计算双倍值
         let count_val = count();
-        let doubled = self.use_memo([count_val], || count_val * 2);
+        let doubled = self.use_memo(|| count_val * 2, [count_val]);
 
         // useEffect - 副作用，当count变化时执行
-        self.use_effect([count_val], || {
-            println!("Effect: count changed to {}", count_val);
-            // 返回可选的清理函数
-            Some(|| {
-                println!("Effect cleanup: previous effect is being cleaned up");
-            })
-        });
+        self.use_effect(
+            || {
+                println!("Effect: count changed to {}", count_val);
+                // 返回可选的清理函数
+                Some(|| {
+                    println!("Effect cleanup: previous effect is being cleaned up");
+                })
+            },
+            [count_val],
+        );
 
         div()
             .flex()

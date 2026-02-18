@@ -34,6 +34,7 @@ gpui-hooks/
 ## 构建命令
 
 ### 基础构建
+
 ```bash
 # 构建所有 workspace 成员（debug 模式）
 cargo build
@@ -51,6 +52,7 @@ cargo check --release
 ```
 
 ### 单个 crate 构建
+
 ```bash
 cd gpui-hooks && cargo build
 cd gpui-hooks-macros && cargo build
@@ -59,6 +61,7 @@ cd gpui-hooks-macros && cargo build
 ## 测试命令
 
 ### 运行所有测试
+
 ```bash
 # 运行 workspace 中所有测试
 cargo test
@@ -72,6 +75,7 @@ cargo test --verbose
 ```
 
 ### 运行单个测试
+
 ```bash
 # 运行特定测试文件中的所有测试
 cargo test --test <test_file_name>
@@ -83,6 +87,7 @@ cargo test <test_function_name>
 ```
 
 ### 测试覆盖率（如已安装 tarpaulin）
+
 ```bash
 cargo tarpaulin --workspace --ignore-tests
 ```
@@ -90,6 +95,7 @@ cargo tarpaulin --workspace --ignore-tests
 ## Lint 和格式化
 
 ### Clippy（代码质量检查）
+
 ```bash
 # 运行 clippy 检查
 cargo clippy
@@ -105,6 +111,7 @@ cargo clippy -p gpui-hooks
 ```
 
 ### Rustfmt（代码格式化）
+
 ```bash
 # 检查格式化
 cargo fmt --check
@@ -117,7 +124,9 @@ cd gpui-hooks && cargo fmt
 ```
 
 ### 预提交检查
+
 建议在提交前运行：
+
 ```bash
 cargo fmt && cargo clippy -- -D warnings && cargo test
 ```
@@ -125,7 +134,9 @@ cargo fmt && cargo clippy -- -D warnings && cargo test
 ## 代码风格指南
 
 ### 导入顺序和分组
+
 遵循以下导入顺序（每个组之间空一行）：
+
 1. 标准库 (`std`, `core`, `alloc`)
 2. 外部 crate（按字母顺序）
 3. 当前 crate 的父模块
@@ -133,6 +144,7 @@ cargo fmt && cargo clippy -- -D warnings && cargo test
 5. `self` 导入
 
 示例：
+
 ```rust
 // 标准库
 use std::cell::{Ref, RefCell, RefMut};
@@ -148,6 +160,7 @@ use crate::hooks::{HasHooks, UseStateHook};
 ```
 
 ### 命名约定
+
 - **结构体/枚举**：`PascalCase`（如 `UseState`, `UseEffect`）
 - **Trait**：`PascalCase` 并以 `Hook` 结尾（如 `UseStateHook`, `HookedElement`）
 - **函数/方法**：`snake_case`（如 `use_state`, `get_mut`）
@@ -156,16 +169,19 @@ use crate::hooks::{HasHooks, UseStateHook};
 - **模块**：`snake_case`（如 `hooks`, `use_state`）
 
 ### 类型和泛型
+
 - 使用显式类型标注，避免不必要的类型推断
 - 泛型参数使用单个大写字母或描述性名称：`T`, `F`, `D`
 - 生命周期参数使用 `'a`, `'b` 等
 
 ### 错误处理
+
 - **Hook 顺序错误**：使用 `panic!`（因为这是编程错误）
 - **运行时错误**：当前库主要使用 panic，未来可能添加 `Result` 返回
 - **依赖检查失败**：静默处理，返回 false
 
 错误消息应提供足够的信息：
+
 ```rust
 panic!(
     "Hook count changed from {} to {}. Hooks must be called in the same order every render.",
@@ -174,16 +190,20 @@ panic!(
 ```
 
 ### Unsafe 代码指南
+
 本库在以下情况下使用 `unsafe`：
+
 1. **Raw pointers 用于闭包捕获**：Hook 实现中使用原始指针创建稳定的闭包引用
 2. **类型转换**：使用 `downcast_ref` 和 `downcast_mut` 进行安全的 trait object 转换
 
 必须遵循的安全准则：
+
 - 确保指针在闭包生命周期内有效
 - 使用 `#[inline(never)]` 防止闭包内联导致悬垂指针
 - 添加安全注释说明不变量
 
 示例：
+
 ```rust
 // 安全：hook_ptr 在闭包生命周期内有效，因为 hooks 向量在组件生命周期内稳定
 let getter: Box<dyn Fn() -> T> = {
@@ -193,6 +213,7 @@ let getter: Box<dyn Fn() -> T> = {
 ```
 
 ### 注释规范
+
 - **文档注释**：使用 `///` 为公共 API 提供文档
 - **模块注释**：使用 `//!` 为模块提供概述
 - **实现注释**：使用 `//` 解释复杂逻辑
@@ -200,12 +221,14 @@ let getter: Box<dyn Fn() -> T> = {
 - **安全注释**：`// SAFETY:` 解释 unsafe 代码的安全保证
 
 文档注释应包含：
+
 - 简要描述
 - 示例代码（如适用）
 - Panics 情况
 - 安全性说明
 
 ### 代码组织
+
 - 每个文件不超过 500 行
 - 每个函数不超过 50 行
 - 复杂的逻辑拆分为辅助函数
@@ -214,16 +237,19 @@ let getter: Box<dyn Fn() -> T> = {
 ## Hook 系统特殊规范
 
 ### Hook 规则
+
 1. **顺序不变性**：Hook 必须在每次渲染中以相同顺序调用
 2. **条件调用**：不能在条件语句、循环或嵌套函数中调用 Hook
 3. **函数组件**：Hook 只能在实现了 `HookedElement` 的结构体中使用
 
 ### 生命周期管理
+
 - **Effect 清理**：组件必须手动调用 `cleanup_effects()` 在 Drop 实现中
 - **内存泄漏**：确保 effect 清理函数被正确调用
 - **依赖数组**：Hook 依赖项必须正确实现 `PartialEq + Clone + 'static`
 
 ### 性能考虑
+
 - **Memoization**：使用 `use_memo` 避免重复计算
 - **Effect 依赖**：正确指定依赖数组避免不必要的 effect 执行
 - **闭包创建**：避免在渲染中创建不必要的闭包
@@ -231,12 +257,14 @@ let getter: Box<dyn Fn() -> T> = {
 ## 宏开发指南
 
 ### `#[hook_element]` 宏
+
 - 只能用于具有命名字段的结构体
 - 自动添加 `_hooks`, `_hook_index`, `_prev` 字段
 - 自动实现 `Default`, `HookedElement`, `gpui::Render`
 - 保持原始字段不变
 
 ### 过程宏规范
+
 - 使用 `syn` 和 `quote` crate 进行语法树操作
 - 提供清晰的错误消息
 - 保持宏输出格式良好
@@ -244,6 +272,7 @@ let getter: Box<dyn Fn() -> T> = {
 ## 示例和演示
 
 ### 运行示例
+
 ```bash
 # 运行基础示例
 cargo run --example basic
@@ -253,6 +282,7 @@ cargo build --examples
 ```
 
 ### 创建新示例
+
 1. 在 `gpui-hooks/examples/` 目录下创建 `<name>.rs`
 2. 添加 `[[example]]` 到 `gpui-hooks/Cargo.toml`
 3. 确保示例展示 Hook 的主要功能
@@ -260,6 +290,7 @@ cargo build --examples
 ## 提交和版本控制
 
 ### 提交消息格式
+
 ```
 类型(范围): 简要描述
 
@@ -271,6 +302,7 @@ cargo build --examples
 类型包括：`feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`
 
 ### 分支策略
+
 - `main`：稳定版本
 - `develop`：开发分支
 - `feature/*`：新功能
@@ -279,16 +311,18 @@ cargo build --examples
 ## 故障排除
 
 ### 常见问题
+
 1. **Hook 顺序错误**：检查条件渲染中的 Hook 调用
 2. **编译错误**：确保 GPUI 版本兼容
 3. **运行时 panic**：检查 effect 清理函数的调用
 
 ### 调试建议
+
 - 启用 `RUST_BACKTRACE=1` 环境变量
 - 使用 `dbg!()` 宏调试 Hook 状态
 - 检查依赖数组是否按预期变化
 
 ---
 
-*本文档最后更新：2025-02-18*  
-*适用于所有 AI 编码助手和开发者*
+_本文档最后更新：2026-02-18_  
+_适用于所有 AI 编码助手和开发者_

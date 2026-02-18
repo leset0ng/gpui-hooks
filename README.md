@@ -46,13 +46,13 @@ impl HookedRender for CounterApp {
 
         // useMemo - compute doubled value
         let count_val = count();
-        let doubled = self.use_memo([count_val], || count_val * 2);
+        let doubled = self.use_memo(|| count_val * 2, [count_val]);
 
         // useEffect - side effect when count changes
-        self.use_effect([count_val], || {
+        self.use_effect(|| {
             println!("Effect: count changed to {}", count_val);
             Some(|| println!("Effect cleanup"))
-        });
+        }, [count_val]);
 
         div()
             .child(format!("Count: {}", count()))
@@ -113,12 +113,12 @@ let (value, set_value) = self.use_state(|| initial_value);
 Executes side effects.
 
 ```rust
-self.use_effect(deps, || {
+self.use_effect(|| {
     // Side effect logic
     Some(|| {
         // Cleanup function (optional)
     })
-});
+}, deps);
 ```
 
 - **Parameters**:
@@ -131,7 +131,7 @@ self.use_effect(deps, || {
 Memoizes computed values.
 
 ```rust
-let memoized = self.use_memo(deps, || compute_expensive_value());
+let memoized = self.use_memo(|| compute_expensive_value(), deps);
 ```
 
 - **Parameters**:
@@ -153,6 +153,7 @@ struct MyComponent {
 ```
 
 The macro automatically:
+
 1. Adds `_hooks`, `_hook_index`, `_prev` fields
 2. Implements `Default` trait
 3. Implements `HookedElement` trait
@@ -171,7 +172,9 @@ Extends `gpui::Render` with hook lifecycle management.
 ## Hook Rules
 
 ### 1. Only Call Hooks at the Top Level
+
 ❌ Wrong example:
+
 ```rust
 if condition {
     let (value, set_value) = self.use_state(|| 0); // Wrong!
@@ -179,6 +182,7 @@ if condition {
 ```
 
 ✅ Correct example:
+
 ```rust
 let (value, set_value) = self.use_state(|| 0);
 if condition {
@@ -187,9 +191,11 @@ if condition {
 ```
 
 ### 2. Keep Hook Call Order Consistent
+
 Each render must call the same number of hooks in the same order.
 
 ### 3. Manually Clean Up Effects
+
 Components using `use_effect` must clean up in their `Drop` implementation:
 
 ```rust
@@ -231,12 +237,12 @@ impl HookedRender for MyComponent {
     fn render(&mut self, _window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
         let (count, set_count) = self.use_state(|| 0);
         let (name, set_name) = self.use_state(|| String::from("World"));
-        
-        self.use_effect([count()], || {
+
+        self.use_effect(|| {
             println!("Count is now: {}", count());
             None
-        });
-        
+        }, [count()]);
+
         // ... rendering logic
     }
 }
@@ -293,6 +299,7 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 ## Contact
 
 For questions or suggestions, please:
+
 - Submit an [Issue](https://github.com/leset0ng/gpui-hooks/issues)
 - Join the discussion
 

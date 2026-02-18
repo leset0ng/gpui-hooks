@@ -81,7 +81,8 @@ pub trait UseEffectHook {
 
     /// Use an effect hook
     /// Note: deps parameter should be passed directly (array or tuple) to avoid temporary value lifetime issues
-    fn use_effect<F, C, D>(&self, deps: D, effect: F)
+    /// The effect closure is passed first, followed by the dependencies array.
+    fn use_effect<F, C, D>(&self, effect: F, deps: D)
     where
         F: FnOnce() -> Option<C>,
         C: FnOnce() + 'static,

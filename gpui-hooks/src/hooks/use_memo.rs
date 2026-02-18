@@ -68,7 +68,8 @@ pub trait UseMemoHook {
     /// Use a memo hook
     /// Returns a getter function that returns the memoized value
     /// Note: deps parameter should be passed directly (array or tuple) to avoid temporary value lifetime issues
-    fn use_memo<T, F, D>(&self, deps: D, compute: F) -> Box<dyn Fn() -> T>
+    /// The compute closure is passed first, followed by the dependencies array.
+    fn use_memo<T, F, D>(&self, compute: F, deps: D) -> Box<dyn Fn() -> T>
     where
         T: Clone + 'static,
         F: FnOnce() -> T,
