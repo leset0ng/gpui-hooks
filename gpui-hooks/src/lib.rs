@@ -7,13 +7,17 @@ use std::cell::RefCell;
 use gpui::{Context, IntoElement, Window};
 pub use gpui_hooks_macros::hook_element;
 pub mod hooks;
-use hooks::{HasHooks, Hook, UseEffectHook, UseMemoHook, UseStateHook};
+use hooks::{
+    HasHooks, Hook, UseCallbackHook, UseEffectHook, UseMemoHook, UseRefHook, UseStateHook,
+};
 
 /// HookedElement trait - 管理组件的hooks
 /// 使用内部可变性模式，使得hooks可以在&self上调用
 ///
 /// 自动实现了 UseStateHook, UseEffectHook, UseMemoHook
-pub trait HookedElement: UseStateHook + UseEffectHook + UseMemoHook {
+pub trait HookedElement:
+    UseStateHook + UseEffectHook + UseMemoHook + UseRefHook + UseCallbackHook
+{
     /// Get access to the hooks RefCell
     fn _hooks_ref(&self) -> &RefCell<Vec<Box<dyn Hook>>>;
 

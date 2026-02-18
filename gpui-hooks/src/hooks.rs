@@ -1,9 +1,13 @@
+pub mod use_callback;
 pub mod use_effect;
 pub mod use_memo;
+pub mod use_ref;
 pub mod use_state;
 
+pub use use_callback::{UseCallback, UseCallbackHook};
 pub use use_effect::{UseEffect, UseEffectHook};
 pub use use_memo::{UseMemo, UseMemoHook};
+pub use use_ref::{UseRef, UseRefHook};
 pub use use_state::{UseState, UseStateHook};
 
 use std::any::Any;
@@ -83,3 +87,15 @@ impl<T: HasHooks> UseMemoHook for T {
         self._next_index()
     }
 }
+
+impl<T: HasHooks> UseRefHook for T {
+    fn _hooks_ref(&self) -> &RefCell<Vec<Box<dyn Hook>>> {
+        self._hooks_storage()
+    }
+
+    fn _next_hook_index(&self) -> usize {
+        self._next_index()
+    }
+}
+
+impl<T: HasHooks> UseCallbackHook for T {}

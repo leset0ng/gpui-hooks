@@ -4,7 +4,7 @@ use gpui::{
 };
 use gpui_hooks::{HookedRender, hook_element};
 // 按需导入需要的 hook traits
-use gpui_hooks::hooks::{UseEffectHook, UseMemoHook, UseStateHook};
+use gpui_hooks::hooks::{UseCallbackHook, UseEffectHook, UseMemoHook, UseRefHook, UseStateHook};
 
 #[hook_element]
 struct CounterApp {}
@@ -30,6 +30,27 @@ impl HookedRender for CounterApp {
             [count_val],
         );
 
+        // useRef - 创建一个可变引用，用于存储上一次的值
+        let prev_count_ref = self.use_ref(|| 0i32);
+        let current_count = count_val;
+
+        // 更新引用值
+        if current_count != *prev_count_ref.borrow() {
+            *prev_count_ref.borrow_mut() = current_count;
+        }
+
+        // useCallback - 创建一个记忆化的回调函数
+        let handle_increment = self.use_callback(
+            || {
+                let count_val = current_count;
+                Box::new(move || {
+                    println!("Callback executed with count: {}", count_val);
+                    count_val + 1
+                }) as Box<dyn Fn() -> i32>
+            },
+            [current_count],
+        );
+
         div()
             .flex()
             .flex_col()
@@ -47,14 +68,29 @@ impl HookedRender for CounterApp {
             .child(format!("Count: {}", count()))
             // 双倍值显示（useMemo）
             .child(format!("Doubled (useMemo): {}", doubled()))
+            // useRef显示
+            .child(format!(
+                "Previous count (useRef): {}",
+                *prev_count_ref.borrow()
+            ))
             // 操作说明
-            .child("Check console for effect logs")
+            .child("Check console for effect and callback logs")
             .child(div().child("click me").id("counter").on_click(cx.listener(
                 move |_this, _, _window, cx| {
                     set_count(count() + 1);
                     cx.notify();
                 },
             )))
+            // useCallback测试按钮
+            .child(
+                div()
+                    .child("test callback")
+                    .id("callback-test")
+                    .on_click(cx.listener(move |_this, _, _window, _cx| {
+                        let result = handle_increment();
+                        println!("Callback returned: {}", result);
+                    })),
+            )
     }
 }
 
