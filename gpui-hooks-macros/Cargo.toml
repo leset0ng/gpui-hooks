@@ -2,6 +2,12 @@
 name = "gpui-hooks-macros"
 version = "0.1.0"
 edition = "2024"
+description = "Procedural macros for GPUI Hooks - React-style hooks for GPUI framework"
+license = "MIT"
+repository = "https://github.com/leset0ng/gpui-hooks"
+keywords = ["gpui", "hooks", "react", "gui", "macros"]
+categories = ["gui", "development-tools::procedural-macros"]
+readme = "../README.md"
 
 [lib]
 proc-macro = true
