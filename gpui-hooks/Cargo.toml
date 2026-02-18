@@ -1,6 +1,6 @@
 [package]
 name = "gpui-hooks"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2024"
 description = "React-style hooks for GPUI framework"
 license = "MIT"
@@ -11,4 +11,4 @@ readme = "../README.md"
 
 [dependencies]
 gpui = "0.2.2"
-gpui-hooks-macros = "0.1.0"
+gpui-hooks-macros = { path = "../gpui-hooks-macros", version = "0.1.1" }
