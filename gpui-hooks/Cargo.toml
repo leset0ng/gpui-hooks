@@ -1,0 +1,8 @@
+[package]
+name = "gpui-hooks"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+gpui = "0.2.2"
+gpui-hooks-macros = { path = "../gpui-hooks-macros" }

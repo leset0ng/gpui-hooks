@@ -1,0 +1,3 @@
+[workspace]
+members = ["gpui-hooks", "gpui-hooks-macros"]
+resolver = "2"
