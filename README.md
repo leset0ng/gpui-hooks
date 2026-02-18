@@ -1,31 +1,35 @@
 # GPUI Hooks
 
+[![Crates.io](https://img.shields.io/crates/v/gpui-hooks)](https://crates.io/crates/gpui-hooks)
+[![Documentation](https://docs.rs/gpui-hooks/badge.svg)](https://docs.rs/gpui-hooks)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-一个为 [GPUI](https://github.com/zed-industries/zed/tree/main/crates/gpui) 框架添加 React 风格 Hook 系统的 Rust 库。
+> For Chinese version, see [README_zh.md](README_zh.md)
 
-## 特性
+A Rust library that adds React-style Hook system to the [GPUI](https://github.com/zed-industries/zed/tree/main/crates/gpui) framework.
 
-- **React 风格 Hooks**：`use_state`, `use_effect`, `use_memo`
-- **属性宏**：`#[hook_element]` 自动为结构体添加 Hook 支持
-- **类型安全**：完整的 Rust 类型系统支持
-- **零开销抽象**：编译时 Hook 管理，运行时开销最小
-- **GPUI 集成**：与 GPUI 的 `Render` trait 无缝集成
+## Features
 
-## 安装
+- **React-style Hooks**: `use_state`, `use_effect`, `use_memo`
+- **Attribute Macro**: `#[hook_element]` automatically adds Hook support to structs
+- **Type Safety**: Full Rust type system support
+- **Zero-cost Abstraction**: Compile-time hook management, minimal runtime overhead
+- **GPUI Integration**: Seamless integration with GPUI's `Render` trait
 
-在 `Cargo.toml` 中添加依赖：
+## Installation
+
+Add to your `Cargo.toml`:
 
 ```toml
 [dependencies]
 gpui-hooks = "0.1"
 ```
 
-**注意**：本库需要与 [GPUI](https://crates.io/crates/gpui) 框架一起使用。
+**Note**: This library requires the [GPUI](https://crates.io/crates/gpui) framework.
 
-## 快速开始
+## Quick Start
 
-### 1. 创建 Hook 组件
+### 1. Create a Hook Component
 
 ```rust
 use gpui::{div, prelude::*, px, rgb, size, App, Application, Bounds, Context, Window, WindowBounds, WindowOptions};
@@ -37,14 +41,14 @@ struct CounterApp {}
 
 impl HookedRender for CounterApp {
     fn render(&mut self, _window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
-        // useState - 管理计数器状态
+        // useState - manage counter state
         let (count, set_count) = self.use_state(|| 0i32);
 
-        // useMemo - 计算双倍值
+        // useMemo - compute doubled value
         let count_val = count();
         let doubled = self.use_memo([count_val], || count_val * 2);
 
-        // useEffect - 副作用，当count变化时执行
+        // useEffect - side effect when count changes
         self.use_effect([count_val], || {
             println!("Effect: count changed to {}", count_val);
             Some(|| println!("Effect cleanup"))
@@ -63,7 +67,7 @@ impl HookedRender for CounterApp {
 }
 ```
 
-### 2. 运行应用
+### 2. Run the Application
 
 ```rust
 fn main() {
@@ -82,117 +86,111 @@ fn main() {
 }
 ```
 
-### 3. 运行示例
+### 3. Run Example
 
 ```bash
 cargo run --example basic
 ```
 
-## API 文档
+## API Documentation
 
 ### Hooks
 
 #### `use_state`
 
-管理组件状态。
+Manages component state.
 
 ```rust
 let (value, set_value) = self.use_state(|| initial_value);
 ```
 
-- **参数**：闭包，返回初始值
-- **返回值**：`(getter, setter)` 元组
-- **类型约束**：`T: Clone + 'static`
+- **Parameters**: Closure returning initial value
+- **Returns**: `(getter, setter)` tuple
+- **Type Constraint**: `T: Clone + 'static`
 
 #### `use_effect`
 
-执行副作用。
+Executes side effects.
 
 ```rust
 self.use_effect(deps, || {
-    // 副作用逻辑
+    // Side effect logic
     Some(|| {
-        // 清理函数（可选）
+        // Cleanup function (optional)
     })
 });
 ```
 
-- **参数**：
-  - `deps`：依赖数组，当依赖变化时重新执行
-  - `effect`：副作用闭包，返回可选的清理函数
-- **注意**：组件必须在 `Drop` 实现中调用 `cleanup_effects()`
+- **Parameters**:
+  - `deps`: Dependency array, re-executes when dependencies change
+  - `effect`: Side effect closure, returns optional cleanup function
+- **Note**: Components must call `cleanup_effects()` in their `Drop` implementation
 
 #### `use_memo`
 
-记忆化计算值。
+Memoizes computed values.
 
 ```rust
 let memoized = self.use_memo(deps, || compute_expensive_value());
 ```
 
-- **参数**：
-  - `deps`：依赖数组，当依赖变化时重新计算
-  - `compute`：计算闭包
-- **返回值**：`getter` 函数，返回记忆化的值
+- **Parameters**:
+  - `deps`: Dependency array, re-computes when dependencies change
+  - `compute`: Computation closure
+- **Returns**: `getter` function returning memoized value
 
-### 宏
+### Macro
 
 #### `#[hook_element]`
 
-属性宏，自动为结构体添加 Hook 支持。
+Attribute macro that automatically adds Hook support to structs.
 
 ```rust
 #[hook_element]
 struct MyComponent {
-    // 自定义字段
+    // Custom fields
 }
 ```
 
-宏会自动：
+The macro automatically:
+1. Adds `_hooks`, `_hook_index`, `_prev` fields
+2. Implements `Default` trait
+3. Implements `HookedElement` trait
+4. Implements `gpui::Render` trait
 
-1. 添加 `_hooks`, `_hook_index`, `_prev` 字段
-2. 实现 `Default` trait
-3. 实现 `HookedElement` trait
-4. 实现 `gpui::Render` trait
-
-### Trait
+### Traits
 
 #### `HookedElement`
 
-Hook 组件的基本 trait，提供 Hook 管理功能。
+Basic trait for hook components, providing hook management functionality.
 
 #### `HookedRender`
 
-扩展 `gpui::Render`，添加 Hook 生命周期管理。
+Extends `gpui::Render` with hook lifecycle management.
 
-## Hook 规则
+## Hook Rules
 
-### 1. 只在顶层调用 Hook
-
-❌ 错误示例：
-
+### 1. Only Call Hooks at the Top Level
+❌ Wrong example:
 ```rust
 if condition {
-    let (value, set_value) = self.use_state(|| 0); // 错误！
+    let (value, set_value) = self.use_state(|| 0); // Wrong!
 }
 ```
 
-✅ 正确示例：
-
+✅ Correct example:
 ```rust
 let (value, set_value) = self.use_state(|| 0);
 if condition {
-    // 使用 value()
+    // Use value()
 }
 ```
 
-### 2. 保持 Hook 调用顺序一致
+### 2. Keep Hook Call Order Consistent
+Each render must call the same number of hooks in the same order.
 
-每次渲染必须以相同的顺序调用相同数量的 Hook。
-
-### 3. 手动清理 Effect
-
-使用 `use_effect` 的组件必须在 `Drop` 实现中清理：
+### 3. Manually Clean Up Effects
+Components using `use_effect` must clean up in their `Drop` implementation:
 
 ```rust
 impl Drop for MyComponent {
@@ -202,11 +200,11 @@ impl Drop for MyComponent {
 }
 ```
 
-## 高级用法
+## Advanced Usage
 
-### 自定义 Hook
+### Custom Hooks
 
-创建可复用的自定义 Hook：
+Create reusable custom hooks:
 
 ```rust
 trait UseCounter {
@@ -226,79 +224,78 @@ impl<T: UseStateHook> UseCounter for T {
 }
 ```
 
-### 组合多个 Hook
+### Combining Multiple Hooks
 
 ```rust
 impl HookedRender for MyComponent {
     fn render(&mut self, _window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
         let (count, set_count) = self.use_state(|| 0);
         let (name, set_name) = self.use_state(|| String::from("World"));
-
+        
         self.use_effect([count()], || {
             println!("Count is now: {}", count());
             None
         });
-
-        // ... 渲染逻辑
+        
+        // ... rendering logic
     }
 }
 ```
 
-## 开发指南
+## Development Guide
 
-### 构建项目
+### Build Project
 
 ```bash
 cargo build
 cargo build --release
 ```
 
-### 运行测试
+### Run Tests
 
 ```bash
 cargo test
 ```
 
-### 代码检查
+### Code Quality
 
 ```bash
 cargo clippy
 cargo fmt --check
 ```
 
-### 查看文档
+### View Documentation
 
 ```bash
 cargo doc --open
 ```
 
-## 贡献
+## Contributing
 
-欢迎贡献！请参阅 [CONTRIBUTING.md](CONTRIBUTING.md)（待创建）。
+Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) (to be created).
 
-1. Fork 项目
-2. 创建功能分支 (`git checkout -b feature/amazing-feature`)
-3. 提交更改 (`git commit -m 'feat: add amazing feature'`)
-4. 推送到分支 (`git push origin feature/amazing-feature`)
-5. 创建 Pull Request
+1. Fork the project
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'feat: add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-## 许可证
+## License
 
-本项目采用 MIT 许可证。详见 [LICENSE](LICENSE) 文件。
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
-## 致谢
+## Acknowledgments
 
-- [GPUI](https://github.com/zed-industries/zed/tree/main/crates/gpui) - 优秀的 Rust GUI 框架
-- [React](https://reactjs.org/) - 灵感来源
-- 所有贡献者
+- [GPUI](https://github.com/zed-industries/zed/tree/main/crates/gpui) - Excellent Rust GUI framework
+- [React](https://reactjs.org/) - Inspiration source
+- All contributors
 
-## 联系方式
+## Contact
 
-如有问题或建议，请：
-
-- 提交 [Issue](https://github.com/your-username/gpui-hooks/issues)
-- 参与讨论
+For questions or suggestions, please:
+- Submit an [Issue](https://github.com/leset0ng/gpui-hooks/issues)
+- Join the discussion
 
 ---
 
-**快乐 Hooking！** 🎣
+**Happy Hooking!** 🎣
