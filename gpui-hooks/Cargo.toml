@@ -5,7 +5,7 @@ edition = "2024"
 description = "React-style hooks for GPUI framework"
 license = "MIT"
 repository = "https://github.com/leset0ng/gpui-hooks"
-keywords = ["gpui", "hooks", "react", "gui", "state", "effects"]
+keywords = ["gpui", "hooks", "react", "gui", "state"]
 categories = ["gui", "development-tools"]
 readme = "../README.md"
 
