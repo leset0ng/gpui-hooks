@@ -2,6 +2,8 @@
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
+> 英文版本 (English Version): [README.md](README.md)
+
 一个为 [GPUI](https://github.com/zed-industries/zed/tree/main/crates/gpui) 框架添加 React 风格 Hook 系统的 Rust 库。
 
 ## 特性
