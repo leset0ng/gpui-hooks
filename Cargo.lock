@@ -2129,7 +2129,7 @@ dependencies = [
 
 [[package]]
 name = "gpui-hooks"
-version = "0.1.1"
+version = "0.1.3"
 dependencies = [
  "gpui",
  "gpui-hooks-macros 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",

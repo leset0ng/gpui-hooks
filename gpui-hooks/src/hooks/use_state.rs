@@ -2,6 +2,9 @@ use super::Hook;
 use std::any::Any;
 use std::cell::{Ref, RefCell, RefMut};
 
+/// Result type for use_state hook - (getter function, setter function)
+type UseStateResult<T> = (Box<dyn Fn() -> T>, Box<dyn Fn(T)>);
+
 /// UseState hook - manages a mutable state value
 pub struct UseState<T: 'static> {
     value: RefCell<T>,
@@ -60,7 +63,7 @@ pub trait UseStateHook {
 
     /// Use a state hook
     /// Returns (getter function, setter function)
-    fn use_state<T, F>(&self, initial: F) -> (Box<dyn Fn() -> T>, Box<dyn Fn(T)>)
+    fn use_state<T, F>(&self, initial: F) -> UseStateResult<T>
     where
         T: Clone + 'static,
         F: FnOnce() -> T,
