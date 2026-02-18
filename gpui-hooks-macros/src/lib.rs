@@ -57,9 +57,9 @@ pub fn hook_element(_attr: TokenStream, item: TokenStream) -> TokenStream {
         #(#attrs)*
         #vis struct #ident #generics {
             #(#fields,)*
-            _hooks: ::std::vec::Vec<::std::boxed::Box<dyn gpui_hooks::Hook>>,
-            _hook_index: usize,
-            _prev: usize,
+            _hooks: ::std::cell::RefCell<::std::vec::Vec<::std::boxed::Box<dyn gpui_hooks::hooks::Hook>>>,
+            _hook_index: ::std::cell::Cell<usize>,
+            _prev: ::std::cell::Cell<usize>,
         }
 
         impl #impl_generics ::std::default::Default for #ident #ty_generics #where_clause {
@@ -68,42 +68,32 @@ pub fn hook_element(_attr: TokenStream, item: TokenStream) -> TokenStream {
                     #(
                         #original_field_names: ::std::default::Default::default(),
                     )*
-                    _hooks: ::std::vec::Vec::new(),
-                    _hook_index: 0,
-                    _prev: 0,
+                    _hooks: ::std::cell::RefCell::new(::std::vec::Vec::new()),
+                    _hook_index: ::std::cell::Cell::new(0),
+                    _prev: ::std::cell::Cell::new(0),
                 }
             }
         }
 
         impl #impl_generics gpui_hooks::HookedElement for #ident #ty_generics #where_clause {
-            /// Add a hook to the hooks list
-            fn _use<T>(&mut self, hook: T) -> T where T:impl gpui_hooks::Hook + 'static {
-                if self._hook_index == self._hooks.len() {
-                    self._hooks.push(::std::boxed::Box::new(hook));
-                    hook
-                } else {
-                    self._hooks[self._hook_index] = ::std::boxed::Box::new(hook);
-                }
-            }
-
-            /// Get an immutable reference to the hooks list
-            fn _hooks(&self) -> &[::std::boxed::Box<dyn gpui_hooks::Hook>] {
+            fn _hooks_ref(&self) -> &::std::cell::RefCell<::std::vec::Vec<::std::boxed::Box<dyn gpui_hooks::hooks::Hook>>> {
                 &self._hooks
             }
 
-            /// Get a mutable reference to the hooks list
-            fn _hooks_mut(&mut self) -> &mut [::std::boxed::Box<dyn gpui_hooks::Hook>] {
-                &mut self._hooks
+            fn _hook_index(&self) -> usize {
+                self._hook_index.get()
             }
 
-            /// reset the hook index
-            fn _reset(&mut self) {
-                if self._prev == 0 || self._hook_index == self._prev {
-                    self._prev = self._hook_index;
-                } else {
-                    panic!("dont use hooks in condition");
-                }
-                self._hook_index = 0;
+            fn _set_hook_index(&self, index: usize) {
+                self._hook_index.set(index);
+            }
+
+            fn _prev(&self) -> usize {
+                self._prev.get()
+            }
+
+            fn _set_prev(&self, prev: usize) {
+                self._prev.set(prev);
             }
         }
 
